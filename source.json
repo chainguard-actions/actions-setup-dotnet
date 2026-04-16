@@ -1,0 +1,4 @@
+{
+  "upstream": "actions/setup-dotnet",
+  "version": "v5.2.0"
+}
