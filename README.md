@@ -1,5 +1,7 @@
 # actions/setup-dotnet
 
+Set up your GitHub Actions workflow with a specific version of the .NET core sdk
+
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/actions/setup-dotnet](https://github.com/actions/setup-dotnet).
 
 ## Versions
