@@ -1,6 +1,12 @@
 # actions/setup-dotnet
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/actions/setup-dotnet](https://github.com/actions/setup-dotnet).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/setup-dotnet/tree/v5.2.0) | — |
 
 ## Privacy
 
