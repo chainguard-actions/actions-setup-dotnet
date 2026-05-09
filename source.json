@@ -1,4 +1,6 @@
 {
-  "upstream": "actions/setup-dotnet",
-  "version": "v5.2.0"
+  "owner": "actions",
+  "repo": "setup-dotnet",
+  "version": "",
+  "url": "https://github.com/actions/setup-dotnet"
 }

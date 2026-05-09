@@ -2,5 +2,6 @@
   "owner": "actions",
   "name": "setup-dotnet",
   "visibility": "internal",
-  "description": "Set up your GitHub Actions workflow with a specific version of the .NET core sdk"
+  "description": "Set up your GitHub Actions workflow with a specific version of the .NET core sdk",
+  "block_publish": false
 }
