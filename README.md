@@ -8,7 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
-| v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/setup-dotnet/tree/v5.2.0) | — |
+| v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/actions--setup-dotnet/tree/v5.2.0) | — |
 
 ## Privacy
 
