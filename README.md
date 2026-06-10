@@ -1,6 +1,6 @@
 # actions/setup-dotnet
 
-Set up your GitHub Actions workflow with a specific version of the .NET core sdk
+Used to build and publish .NET source. Set up a specific version of the .NET and authentication to private NuGet repository
 
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/actions/setup-dotnet](https://github.com/actions/setup-dotnet).
 
