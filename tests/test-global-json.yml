@@ -1,4 +1,4 @@
-name: Test global-json-file input
+name: Test dotnet setup with global-json-file input
 on:
   workflow_dispatch:
 jobs:
@@ -19,8 +19,8 @@ jobs:
             echo "FAIL: dotnet-version output was empty"
             exit 1
           fi
-          echo "PASS: dotnet-version output is set to $ACTUAL"
-      - name: Assert dotnet is available
+          echo "PASS"
+      - name: Assert dotnet is installed
         run: |
           dotnet --version
-          echo "PASS: dotnet is available"
+          echo "PASS: dotnet is installed"
