@@ -10,6 +10,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 |---------|-----|-----------------|
 | v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/actions-setup-dotnet/tree/v5.2.0) | [`c2fa09f`](https://github.com/actions/setup-dotnet/commit/c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7) |
 | v5.3.0 | [`v5.3.0`](https://github.com/chainguard-actions/actions-setup-dotnet/tree/v5.3.0) | [`9a946fd`](https://github.com/actions/setup-dotnet/commit/9a946fdbd5fb07b82b2f5a4466058b876ab72bb2) |
+| v5.4.0 | [`v5.4.0`](https://github.com/chainguard-actions/actions-setup-dotnet/tree/v5.4.0) | [`26b0ec1`](https://github.com/actions/setup-dotnet/commit/26b0ec14cb23fa6904739307f278c14f94c95bf1) |
 
 ## Privacy
 
