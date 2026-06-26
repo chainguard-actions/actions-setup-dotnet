@@ -1,0 +1,44 @@
+name: Test dotnet setup via global.json
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create global.json
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/dotnet-test-dir
+          cat > $GITHUB_WORKSPACE/dotnet-test-dir/global.json <<'EOF'
+          {
+            "sdk": {
+              "version": "8.0.100",
+              "rollForward": "latestMinor"
+            }
+          }
+          EOF
+          echo "Created global.json:"
+          cat $GITHUB_WORKSPACE/dotnet-test-dir/global.json
+      - id: setup
+        uses: .
+        with:
+          global-json-file: dotnet-test-dir/global.json
+      - name: Assert dotnet-version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
+        run: |
+          echo "actual dotnet-version output: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: dotnet-version output was empty"
+            exit 1
+          fi
+          echo "PASS: dotnet-version output is '$ACTUAL'"
+      - name: Assert dotnet is installed
+        run: |
+          VERSION=$(dotnet --version)
+          echo "dotnet --version: $VERSION"
+          if [ -z "$VERSION" ]; then
+            echo "FAIL: dotnet --version returned empty"
+            exit 1
+          fi
+          echo "PASS: dotnet is installed, version=$VERSION"
