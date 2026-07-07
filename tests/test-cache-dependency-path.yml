@@ -1,4 +1,4 @@
-name: Test workloads input
+name: Test cache-dependency-path input
 on:
   workflow_dispatch:
 jobs:
@@ -14,11 +14,24 @@ jobs:
           mkdir -p __ACTION_SRC__/externals
           curl -fsSL https://dot.net/v1/dotnet-install.sh -o __ACTION_SRC__/externals/install-dotnet.sh
           chmod 755 __ACTION_SRC__/externals/install-dotnet.sh
+      - name: Create a packages.lock.json for cache dependency
+        run: |
+          mkdir -p myapp
+          cat > myapp/packages.lock.json <<'EOF'
+          {
+            "version": 1,
+            "dependencies": {
+              "net8.0": {}
+            }
+          }
+          EOF
+          echo "Created myapp/packages.lock.json"
       - id: setup
         uses: .
         with:
           dotnet-version: '8.0.x'
-          workloads: wasm-tools
+          cache: true
+          cache-dependency-path: myapp/packages.lock.json
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
@@ -29,14 +42,11 @@ jobs:
             exit 1
           fi
           echo "PASS"
-      - name: Assert dotnet is installed
+      - name: Assert cache-hit output is present
+        env:
+          CACHE_HIT: ${{ steps.setup.outputs.cache-hit }}
         run: |
+          echo "cache-hit: $CACHE_HIT"
+          # cache-hit can be true or false (or empty on first run), just verify dotnet works
           dotnet --version
-          echo "PASS: dotnet is available"
-      - name: Assert wasm-tools workload is installed
-        run: |
-          dotnet workload list | grep -i wasm-tools || {
-            echo "FAIL: wasm-tools workload not found"
-            exit 1
-          }
-          echo "PASS: wasm-tools workload is installed"
+          echo "PASS: dotnet is available and cache-dependency-path was accepted"

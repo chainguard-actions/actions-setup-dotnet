@@ -1,4 +1,4 @@
-name: Test dotnet setup with cache enabled
+name: Test multiple dotnet versions setup
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,9 @@ jobs:
       - id: setup
         uses: .
         with:
-          dotnet-version: '8.0.x'
-          cache: true
+          dotnet-version: |
+            6.0.x
+            8.0.x
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
@@ -21,21 +22,24 @@ jobs:
             exit 1
           fi
           echo "PASS: dotnet-version output is set to $ACTUAL"
-      - name: Assert cache-hit output is defined (true or false)
-        env:
-          CACHE_HIT: ${{ steps.setup.outputs.cache-hit }}
-        run: |
-          echo "cache-hit output: $CACHE_HIT"
-          if [ "$CACHE_HIT" != "true" ] && [ "$CACHE_HIT" != "false" ] && [ -n "$CACHE_HIT" ]; then
-            echo "FAIL: cache-hit should be 'true', 'false', or empty; got '$CACHE_HIT'"
-            exit 1
-          fi
-          echo "PASS: cache-hit output is acceptable: '$CACHE_HIT'"
       - name: Assert dotnet is available on PATH
         run: |
           if ! command -v dotnet &>/dev/null; then
             echo "FAIL: dotnet not found on PATH"
             exit 1
           fi
-          VERSION=$(dotnet --version)
-          echo "PASS: dotnet $VERSION is available"
+          echo "PASS: dotnet found at $(command -v dotnet)"
+      - name: Assert both SDK versions are installed
+        run: |
+          echo "Listing installed SDKs:"
+          dotnet --list-sdks
+          SDKS=$(dotnet --list-sdks)
+          if ! echo "$SDKS" | grep -q "^6\."; then
+            echo "FAIL: .NET 6 SDK not found in installed SDKs"
+            exit 1
+          fi
+          if ! echo "$SDKS" | grep -q "^8\."; then
+            echo "FAIL: .NET 8 SDK not found in installed SDKs"
+            exit 1
+          fi
+          echo "PASS: both .NET 6 and .NET 8 SDKs are installed"

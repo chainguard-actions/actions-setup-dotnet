@@ -1,4 +1,4 @@
-name: Test dotnet setup with quality input
+name: Test dotnet setup with explicit architecture
 on:
   workflow_dispatch:
 jobs:
@@ -15,7 +15,7 @@ jobs:
         uses: .
         with:
           dotnet-version: '8.0.x'
-          dotnet-quality: 'ga'
+          architecture: 'x64'
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
@@ -26,7 +26,7 @@ jobs:
             exit 1
           fi
           echo "PASS: dotnet-version output is set to $ACTUAL"
-      - name: Assert dotnet is installed with ga quality
+      - name: Assert dotnet is installed for x64
         run: |
           echo "Checking dotnet is on PATH..."
           which dotnet || { echo "FAIL: dotnet not found on PATH"; exit 1; }
@@ -41,4 +41,4 @@ jobs:
             echo "FAIL: expected version starting with 8.0, got $INSTALLED"
             exit 1
           fi
-          echo "PASS: dotnet $INSTALLED installed with ga quality"
+          echo "PASS: dotnet $INSTALLED installed for x64 architecture"
