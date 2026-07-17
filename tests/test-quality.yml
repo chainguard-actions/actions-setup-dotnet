@@ -1,4 +1,4 @@
-name: Test dotnet setup with cache disabled
+name: Test dotnet setup with quality input
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,8 @@ jobs:
       - id: setup
         uses: .
         with:
-          dotnet-version: '8.0.x'
-          cache: false
+          dotnet-version: '9.0.x'
+          dotnet-quality: 'ga'
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
@@ -34,8 +34,8 @@ jobs:
         run: |
           INSTALLED=$(dotnet --version)
           echo "installed: $INSTALLED"
-          if [[ "$INSTALLED" != 8.* ]]; then
-            echo "FAIL: expected version starting with 8., got $INSTALLED"
+          if [[ "$INSTALLED" != 9.* ]]; then
+            echo "FAIL: expected version starting with 9., got $INSTALLED"
             exit 1
           fi
           echo "PASS"

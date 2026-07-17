@@ -1,4 +1,4 @@
-name: Test dotnet setup with cache disabled
+name: Test multiple dotnet versions installation
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,9 @@ jobs:
       - id: setup
         uses: .
         with:
-          dotnet-version: '8.0.x'
-          cache: false
+          dotnet-version: |
+            8.0.x
+            9.0.x
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
@@ -27,15 +28,18 @@ jobs:
             echo "FAIL: dotnet command not found on PATH"
             exit 1
           fi
-          INSTALLED=$(dotnet --version)
-          echo "dotnet version: $INSTALLED"
           echo "PASS: dotnet is available"
-      - name: Assert installed version matches requested major
+      - name: Assert both SDK versions are installed
         run: |
-          INSTALLED=$(dotnet --version)
-          echo "installed: $INSTALLED"
-          if [[ "$INSTALLED" != 8.* ]]; then
-            echo "FAIL: expected version starting with 8., got $INSTALLED"
+          SDKS=$(dotnet --list-sdks)
+          echo "Installed SDKs:"
+          echo "$SDKS"
+          if ! echo "$SDKS" | grep -q "^8\."; then
+            echo "FAIL: .NET 8 SDK not found in installed SDKs"
             exit 1
           fi
-          echo "PASS"
+          if ! echo "$SDKS" | grep -q "^9\."; then
+            echo "FAIL: .NET 9 SDK not found in installed SDKs"
+            exit 1
+          fi
+          echo "PASS: both .NET 8 and .NET 9 SDKs are installed"

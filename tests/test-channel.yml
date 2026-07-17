@@ -1,4 +1,4 @@
-name: Test workloads input
+name: Test dotnet-channel input
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,8 @@ jobs:
       - id: action
         uses: .
         with:
-          dotnet-version: '8.0'
-          workloads: wasm-tools
+          dotnet-version: 'latest'
+          dotnet-channel: 'LTS'
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.action.outputs.dotnet-version }}
@@ -25,7 +25,3 @@ jobs:
         run: |
           dotnet --version
           echo "PASS"
-      - name: Assert wasm-tools workload is installed
-        run: |
-          dotnet workload list | grep -i wasm-tools || true
-          echo "PASS: workload installation attempted"
