@@ -1,4 +1,4 @@
-name: Test global-json-file input
+name: Test dotnet setup with global.json
 on:
   workflow_dispatch:
 jobs:
@@ -6,21 +6,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create global.json fixture
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tests/fixtures/global-json"
+          cat > "$GITHUB_WORKSPACE/tests/fixtures/global-json/global.json" <<'EOF'
+          {
+            "sdk": {
+              "version": "8.0.100",
+              "rollForward": "latestMinor"
+            }
+          }
+          EOF
+          echo "Created global.json:"
+          cat "$GITHUB_WORKSPACE/tests/fixtures/global-json/global.json"
       - id: action
         uses: .
         with:
-          global-json-file: 'actions/hardened/actions--setup-dotnet/v5.3.0/tests/fixtures/global.json'
+          global-json-file: tests/fixtures/global-json/global.json
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual dotnet-version: $ACTUAL"
+          echo "actual dotnet-version output: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be non-empty"
+            echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS"
-      - name: Assert dotnet is available
+          echo "PASS: dotnet-version output is set to $ACTUAL"
+      - name: Assert dotnet is installed
         run: |
-          dotnet --version
-          echo "PASS: dotnet is available"
+          if ! command -v dotnet &>/dev/null; then
+            echo "FAIL: dotnet command not found"
+            exit 1
+          fi
+          INSTALLED="$(dotnet --version)"
+          echo "dotnet --version: $INSTALLED"
+          if [[ "$INSTALLED" != 8.* ]]; then
+            echo "FAIL: expected version starting with 8., got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: dotnet $INSTALLED installed via global.json"

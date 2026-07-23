@@ -14,4 +14,4 @@ permissions: {}
 jobs:
   call-licensed:
     name: Licensed
-    uses: actions/reusable-workflows/.github/workflows/licensed.yml@09976383aa8780d306ee271bd21bb77a54fad474 # main
+    uses: actions/reusable-workflows/.github/workflows/licensed.yml@4735e71081024a944852f4ab9d1495b6dd2de8f2 # main

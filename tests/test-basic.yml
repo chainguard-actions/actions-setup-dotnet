@@ -1,4 +1,4 @@
-name: Test basic dotnet version installation
+name: Test basic dotnet setup
 on:
   workflow_dispatch:
 jobs:
@@ -6,35 +6,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: setup
+      - id: action
         uses: .
         with:
           dotnet-version: '8.0.x'
       - name: Assert dotnet-version output is set
         env:
-          ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual dotnet-version: $ACTUAL"
+          echo "actual dotnet-version output: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
             echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
           echo "PASS: dotnet-version output is set to $ACTUAL"
-      - name: Assert dotnet is available on PATH
+      - name: Assert dotnet is installed and executable
         run: |
-          if ! command -v dotnet &> /dev/null; then
-            echo "FAIL: dotnet command not found on PATH"
+          echo "Checking dotnet binary..."
+          if ! command -v dotnet &>/dev/null; then
+            echo "FAIL: dotnet command not found"
             exit 1
           fi
-          INSTALLED=$(dotnet --version)
-          echo "dotnet version: $INSTALLED"
-          echo "PASS: dotnet is available"
+          INSTALLED="$(dotnet --version)"
+          echo "dotnet --version: $INSTALLED"
+          echo "PASS: dotnet is installed"
       - name: Assert installed version matches requested major
         run: |
-          INSTALLED=$(dotnet --version)
-          echo "installed: $INSTALLED"
+          INSTALLED="$(dotnet --version)"
+          echo "Installed version: $INSTALLED"
           if [[ "$INSTALLED" != 8.* ]]; then
             echo "FAIL: expected version starting with 8., got $INSTALLED"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: installed version $INSTALLED starts with 8."

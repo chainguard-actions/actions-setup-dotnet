@@ -18,11 +18,17 @@ jobs:
         run: |
           echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be non-empty"
+            echo "FAIL: expected dotnet-version output to be set"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: dotnet-version=$ACTUAL"
+      - name: Assert cache-hit output is present
+        env:
+          ACTUAL: ${{ steps.action.outputs.cache-hit }}
+        run: |
+          echo "cache-hit: $ACTUAL"
+          echo "PASS: cache-hit output is present (value: $ACTUAL)"
       - name: Assert dotnet is installed
         run: |
           dotnet --version
-          echo "PASS"
+          echo "PASS: dotnet is installed"

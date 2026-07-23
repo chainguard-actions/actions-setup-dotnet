@@ -10,8 +10,8 @@ jobs:
         uses: .
         with:
           dotnet-version: '8.0'
-          source-url: https://nuget.pkg.github.com/actions/index.json
-          owner: actions
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+          owner: ${{ github.repository_owner }}
         env:
           NUGET_AUTH_TOKEN: ${{ github.token }}
       - name: Assert dotnet-version output is set
@@ -20,11 +20,11 @@ jobs:
         run: |
           echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be non-empty"
+            echo "FAIL: expected dotnet-version output to be set"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: dotnet-version=$ACTUAL"
       - name: Assert dotnet is installed
         run: |
           dotnet --version
-          echo "PASS"
+          echo "PASS: dotnet is installed"

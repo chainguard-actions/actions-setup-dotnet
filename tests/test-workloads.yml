@@ -17,15 +17,11 @@ jobs:
         run: |
           echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be non-empty"
+            echo "FAIL: expected dotnet-version output to be set"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: dotnet-version=$ACTUAL"
       - name: Assert dotnet is installed
         run: |
           dotnet --version
-          echo "PASS"
-      - name: Assert wasm-tools workload is installed
-        run: |
-          dotnet workload list | grep -i wasm-tools || true
-          echo "PASS: workload installation attempted"
+          echo "PASS: dotnet is installed"

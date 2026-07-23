@@ -1,4 +1,4 @@
-name: Test architecture input
+name: Test dotnet setup with explicit architecture
 on:
   workflow_dispatch:
 jobs:
@@ -9,19 +9,31 @@ jobs:
       - id: action
         uses: .
         with:
-          dotnet-version: '8.0'
-          architecture: x64
+          dotnet-version: '8.0.x'
+          architecture: 'x64'
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual: $ACTUAL"
+          echo "actual dotnet-version output: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be non-empty"
+            echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS"
-      - name: Assert dotnet is installed
+          echo "PASS: dotnet-version output is set to $ACTUAL"
+      - name: Assert dotnet is installed with x64 architecture
         run: |
-          dotnet --version
-          echo "PASS"
+          if ! command -v dotnet &>/dev/null; then
+            echo "FAIL: dotnet command not found"
+            exit 1
+          fi
+          INSTALLED="$(dotnet --version)"
+          echo "dotnet --version: $INSTALLED"
+          # Verify the runtime architecture
+          ARCH_INFO="$(dotnet --info 2>&1 | grep -i 'architecture' | head -1 || true)"
+          echo "Architecture info: $ARCH_INFO"
+          if [[ "$INSTALLED" != 8.* ]]; then
+            echo "FAIL: expected version starting with 8., got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: dotnet $INSTALLED installed"
