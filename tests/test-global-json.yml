@@ -1,4 +1,4 @@
-name: Test dotnet setup via global.json
+name: Test dotnet install via global.json
 on:
   workflow_dispatch:
 jobs:
@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create global.json
+      - name: Create global.json fixture
         run: |
-          mkdir -p $GITHUB_WORKSPACE/dotnet-test-dir
-          cat > $GITHUB_WORKSPACE/dotnet-test-dir/global.json <<'EOF'
+          mkdir -p "$GITHUB_WORKSPACE/tests/fixtures/global-json"
+          cat > "$GITHUB_WORKSPACE/tests/fixtures/global-json/global.json" <<'EOF'
           {
             "sdk": {
               "version": "8.0.100",
@@ -18,27 +18,32 @@ jobs:
           }
           EOF
           echo "Created global.json:"
-          cat $GITHUB_WORKSPACE/dotnet-test-dir/global.json
-      - id: setup
+          cat "$GITHUB_WORKSPACE/tests/fixtures/global-json/global.json"
+      - id: action
         uses: .
         with:
-          global-json-file: dotnet-test-dir/global.json
+          global-json-file: tests/fixtures/global-json/global.json
       - name: Assert dotnet-version output is set
         env:
-          ACTUAL: ${{ steps.setup.outputs.dotnet-version }}
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual dotnet-version output: $ACTUAL"
+          echo "actual dotnet-version: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: dotnet-version output was empty"
+            echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS: dotnet-version output is '$ACTUAL'"
+          echo "PASS: dotnet-version output is set to $ACTUAL"
       - name: Assert dotnet is installed
         run: |
-          VERSION=$(dotnet --version)
-          echo "dotnet --version: $VERSION"
-          if [ -z "$VERSION" ]; then
+          echo "Checking dotnet installation from global.json..."
+          INSTALLED_VERSION=$(dotnet --version)
+          echo "Installed dotnet version: $INSTALLED_VERSION"
+          if [ -z "$INSTALLED_VERSION" ]; then
             echo "FAIL: dotnet --version returned empty"
             exit 1
           fi
-          echo "PASS: dotnet is installed, version=$VERSION"
+          if [[ "$INSTALLED_VERSION" != 8.* ]]; then
+            echo "FAIL: expected dotnet 8.x but got $INSTALLED_VERSION"
+            exit 1
+          fi
+          echo "PASS: dotnet installed from global.json: $INSTALLED_VERSION"

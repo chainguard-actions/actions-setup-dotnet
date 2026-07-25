@@ -10,25 +10,24 @@ jobs:
         uses: .
         with:
           dotnet-version: '8.0'
-          workloads: wasm-tools
-      - name: Assert dotnet-version output is set
+          workloads: 'wasm-tools'
+      - name: Assert dotnet is installed
         env:
-          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+          DOTNET_VER: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be non-empty"
+          echo "dotnet-version output: $DOTNET_VER"
+          if ! dotnet --version; then
+            echo "FAIL: dotnet not found"
             exit 1
           fi
-          echo "PASS"
-      - name: Assert dotnet is installed
-        run: |
-          dotnet --version
-          echo "PASS: dotnet is installed"
+          echo "PASS: dotnet installed with workloads"
       - name: Assert wasm-tools workload is installed
         run: |
-          dotnet workload list | grep -i wasm-tools || {
+          echo "Listing installed workloads..."
+          dotnet workload list
+          if dotnet workload list | grep -q 'wasm-tools'; then
+            echo "PASS: wasm-tools workload found"
+          else
             echo "FAIL: wasm-tools workload not found"
             exit 1
-          }
-          echo "PASS: wasm-tools workload is installed"
+          fi

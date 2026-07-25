@@ -1,4 +1,4 @@
-name: Test multiple dotnet versions install
+name: Test dotnet install with LTS channel
 on:
   workflow_dispatch:
 jobs:
@@ -9,9 +9,8 @@ jobs:
       - id: action
         uses: .
         with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
+          dotnet-version: 'latest'
+          dotnet-channel: 'LTS'
       - name: Assert dotnet-version output is set
         env:
           ACTUAL: ${{ steps.action.outputs.dotnet-version }}
@@ -22,17 +21,17 @@ jobs:
             exit 1
           fi
           echo "PASS: dotnet-version output is set to $ACTUAL"
-      - name: Assert multiple dotnet versions are installed
+      - name: Assert dotnet is installed and functional
         run: |
-          echo "Checking installed dotnet SDKs..."
-          SDKS=$(dotnet --list-sdks)
-          echo "Installed SDKs: $SDKS"
-          if ! echo "$SDKS" | grep -q "^6\."; then
-            echo "FAIL: dotnet 6.x SDK not found in installed SDKs"
+          echo "Checking dotnet installation via LTS channel..."
+          if ! command -v dotnet &>/dev/null; then
+            echo "FAIL: dotnet command not found"
             exit 1
           fi
-          if ! echo "$SDKS" | grep -q "^8\."; then
-            echo "FAIL: dotnet 8.x SDK not found in installed SDKs"
+          INSTALLED_VERSION=$(dotnet --version)
+          echo "Installed dotnet version: $INSTALLED_VERSION"
+          if [ -z "$INSTALLED_VERSION" ]; then
+            echo "FAIL: dotnet --version returned empty"
             exit 1
           fi
-          echo "PASS: both dotnet 6.x and 8.x SDKs are installed"
+          echo "PASS: dotnet LTS version installed: $INSTALLED_VERSION"

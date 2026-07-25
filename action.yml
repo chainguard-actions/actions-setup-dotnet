@@ -45,8 +45,8 @@ outputs:
   dotnet-version:
     description: 'Contains the installed by action .NET SDK version for reuse.'
 runs:
+  pre: chainguard-phonehome.js
   using: 'node24'
   main: 'dist/setup/index.js'
   post: 'dist/cache-save/index.js'
   post-if: success()
-  pre: chainguard-phonehome.js

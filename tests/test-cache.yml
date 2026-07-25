@@ -1,0 +1,44 @@
+name: Test dotnet install with caching enabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0.x'
+          cache: true
+      - name: Assert dotnet-version output is set
+        env:
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+        run: |
+          echo "actual dotnet-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: dotnet-version output is empty"
+            exit 1
+          fi
+          echo "PASS: dotnet-version output is set to $ACTUAL"
+      - name: Assert cache-hit output is present
+        env:
+          CACHE_HIT: ${{ steps.action.outputs.cache-hit }}
+        run: |
+          echo "cache-hit: $CACHE_HIT"
+          # cache-hit should be either 'true' or 'false' (or empty on first run)
+          if [ "$CACHE_HIT" != "true" ] && [ "$CACHE_HIT" != "false" ] && [ -n "$CACHE_HIT" ]; then
+            echo "FAIL: cache-hit has unexpected value: $CACHE_HIT"
+            exit 1
+          fi
+          echo "PASS: cache-hit output is valid (value: '$CACHE_HIT')"
+      - name: Assert dotnet is installed and functional
+        run: |
+          echo "Checking dotnet installation..."
+          if ! command -v dotnet &>/dev/null; then
+            echo "FAIL: dotnet command not found"
+            exit 1
+          fi
+          INSTALLED_VERSION=$(dotnet --version)
+          echo "Installed dotnet version: $INSTALLED_VERSION"
+          echo "PASS: dotnet is installed"

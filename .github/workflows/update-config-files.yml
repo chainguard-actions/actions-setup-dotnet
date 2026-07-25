@@ -1,0 +1,13 @@
+name: Update configuration files
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  call-update-configuration-files:
+    name: Update configuration files
+    uses: actions/reusable-workflows/.github/workflows/update-config-files.yml@4735e71081024a944852f4ab9d1495b6dd2de8f2 # main

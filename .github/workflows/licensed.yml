@@ -1,0 +1,17 @@
+name: Licensed
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  call-licensed:
+    name: Licensed
+    uses: actions/reusable-workflows/.github/workflows/licensed.yml@4735e71081024a944852f4ab9d1495b6dd2de8f2 # main
