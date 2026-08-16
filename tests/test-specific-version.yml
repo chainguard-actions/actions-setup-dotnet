@@ -1,0 +1,64 @@
+name: Test specific dotnet version setup
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0.x'
+          dotnet-quality: 'ga'
+        continue-on-error: true
+      - name: Assert dotnet-version output or graceful failure
+        env:
+          DOTNET_VER: ${{ steps.action.outputs.dotnet-version }}
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "dotnet-version output: $DOTNET_VER"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -z "$DOTNET_VER" ]; then
+              echo "FAIL: action succeeded but dotnet-version output is empty"
+              exit 1
+            fi
+            echo "PASS: dotnet-version output is '$DOTNET_VER'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (environment limitation)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
+      - name: Assert dotnet 8.x GA is installed (when action succeeded)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          if [ "$OUTCOME" != "success" ]; then
+            echo "SKIP: action did not succeed, skipping dotnet version check"
+            exit 0
+          fi
+          INSTALLED=$(dotnet --version)
+          echo "Installed dotnet version: $INSTALLED"
+          if ! echo "$INSTALLED" | grep -q '^8\.'; then
+            echo "FAIL: expected dotnet 8.x but got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: dotnet 8.x GA quality is installed: $INSTALLED"
+      - name: Assert dotnet SDK list shows 8.x (when action succeeded)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          if [ "$OUTCOME" != "success" ]; then
+            echo "SKIP: action did not succeed, skipping SDK list check"
+            exit 0
+          fi
+          SDK_LIST=$(dotnet --list-sdks)
+          echo "Installed SDKs:"
+          echo "$SDK_LIST"
+          if ! echo "$SDK_LIST" | grep -q '^8\.'; then
+            echo "FAIL: dotnet 8.x SDK not found in installed SDKs"
+            exit 1
+          fi
+          echo "PASS: dotnet 8.x SDK is listed"

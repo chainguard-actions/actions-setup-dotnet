@@ -1,0 +1,33 @@
+name: Test workloads input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0'
+          workloads: 'wasm-tools'
+      - name: Assert dotnet-version output is set
+        env:
+          DOTNET_VER: ${{ steps.action.outputs.dotnet-version }}
+        run: |
+          echo "dotnet-version: $DOTNET_VER"
+          if [ -z "$DOTNET_VER" ]; then
+            echo "FAIL: dotnet-version output is empty"
+            exit 1
+          fi
+          echo "PASS: dotnet installed with workloads, version=$DOTNET_VER"
+      - name: Assert dotnet binary is available
+        run: |
+          dotnet --version
+          echo "PASS: dotnet binary is on PATH"
+      - name: Assert wasm-tools workload is installed
+        run: |
+          dotnet workload list | grep -i wasm-tools && echo "PASS: wasm-tools workload found" || {
+            echo "FAIL: wasm-tools workload not found in dotnet workload list"
+            exit 1
+          }
