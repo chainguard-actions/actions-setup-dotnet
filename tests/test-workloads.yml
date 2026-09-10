@@ -20,14 +20,16 @@ jobs:
             echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS: dotnet installed with workloads, version=$DOTNET_VER"
-      - name: Assert dotnet binary is available
+          echo "PASS"
+      - name: Assert dotnet is available
         run: |
           dotnet --version
-          echo "PASS: dotnet binary is on PATH"
+          echo "PASS: dotnet is available"
       - name: Assert wasm-tools workload is installed
         run: |
-          dotnet workload list | grep -i wasm-tools && echo "PASS: wasm-tools workload found" || {
-            echo "FAIL: wasm-tools workload not found in dotnet workload list"
+          if dotnet workload list | grep -q 'wasm-tools'; then
+            echo "PASS: wasm-tools workload is installed"
+          else
+            echo "FAIL: wasm-tools workload not found"
             exit 1
-          }
+          fi

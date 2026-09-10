@@ -23,8 +23,8 @@ jobs:
             echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS: dotnet installed with source-url and owner, version=$DOTNET_VER"
-      - name: Assert dotnet binary is available
+          echo "PASS"
+      - name: Assert dotnet is available
         run: |
           dotnet --version
-          echo "PASS: dotnet binary is on PATH"
+          echo "PASS: dotnet is available"

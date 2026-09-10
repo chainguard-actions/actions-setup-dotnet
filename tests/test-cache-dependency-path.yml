@@ -6,6 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a fake packages.lock.json for cache key
+        run: |
+          mkdir -p hardened/tests/fixtures
+          cat > hardened/tests/fixtures/packages.lock.json <<'EOF'
+          {
+            "version": 1,
+            "dependencies": {}
+          }
+          EOF
       - id: action
         uses: .
         with:
@@ -21,8 +30,8 @@ jobs:
             echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS: dotnet installed with cache-dependency-path, version=$DOTNET_VER"
-      - name: Assert dotnet binary is available
+          echo "PASS"
+      - name: Assert dotnet is available
         run: |
           dotnet --version
-          echo "PASS: dotnet binary is on PATH"
+          echo "PASS: dotnet is available"
