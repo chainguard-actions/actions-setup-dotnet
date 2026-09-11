@@ -6,25 +6,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create NuGet.config fixture
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures/nuget"
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/nuget/NuGet.config" <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+            </packageSources>
+          </configuration>
+          EOF
       - id: action
         uses: .
         with:
           dotnet-version: '8.0'
-          source-url: https://api.nuget.org/v3/index.json
-          config-file: ${{ github.workspace }}/hardened/tests/fixtures/NuGet.config
-        env:
-          NUGET_AUTH_TOKEN: ${{ github.token }}
+          config-file: hardened/tests/fixtures/nuget/NuGet.config
       - name: Assert dotnet-version output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+          DOTNET_VER: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be set"
+          echo "dotnet-version output: $DOTNET_VER"
+          if [ -z "$DOTNET_VER" ]; then
+            echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS: dotnet-version=$ACTUAL"
+          echo "PASS: dotnet-version=$DOTNET_VER"
       - name: Assert dotnet is installed
         run: |
           dotnet --version
-          echo "PASS: dotnet is installed"
+          echo "PASS: dotnet is available"

@@ -6,29 +6,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create packages.lock.json fixture
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures/cache"
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/cache/packages.lock.json" <<'EOF'
+          {
+            "version": 1,
+            "dependencies": {
+              "net8.0": {}
+            }
+          }
+          EOF
       - id: action
         uses: .
         with:
           dotnet-version: '8.0'
           cache: true
-          cache-dependency-path: hardened/tests/fixtures/packages.lock.json
+          cache-dependency-path: hardened/tests/fixtures/cache/packages.lock.json
       - name: Assert dotnet-version output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+          DOTNET_VER: ${{ steps.action.outputs.dotnet-version }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected dotnet-version output to be set"
+          echo "dotnet-version output: $DOTNET_VER"
+          if [ -z "$DOTNET_VER" ]; then
+            echo "FAIL: dotnet-version output is empty"
             exit 1
           fi
-          echo "PASS: dotnet-version=$ACTUAL"
+          echo "PASS: dotnet-version=$DOTNET_VER"
       - name: Assert cache-hit output is present
         env:
-          ACTUAL: ${{ steps.action.outputs.cache-hit }}
+          CACHE_HIT: ${{ steps.action.outputs.cache-hit }}
         run: |
-          echo "cache-hit: $ACTUAL"
-          echo "PASS: cache-hit output is present (value: $ACTUAL)"
+          echo "cache-hit output: $CACHE_HIT"
+          # cache-hit can be true or false — just verify it's set (not empty)
+          if [ -z "$CACHE_HIT" ]; then
+            echo "FAIL: cache-hit output is empty"
+            exit 1
+          fi
+          echo "PASS: cache-hit=$CACHE_HIT"
       - name: Assert dotnet is installed
         run: |
           dotnet --version
-          echo "PASS: dotnet is installed"
+          echo "PASS: dotnet is available"
