@@ -1,0 +1,33 @@
+name: Test basic install of a wildcard SDK version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0.x'
+          skip-lts-prepass: 'true'
+      - name: Assert dotnet-version output
+        env:
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          case "$ACTUAL" in
+            8.0.*) echo "PASS" ;;
+            *) echo "FAIL: expected an 8.0.x version"; exit 1 ;;
+          esac
+      - name: Assert SDK is usable
+        env:
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+        run: |
+          which dotnet
+          dotnet --list-sdks
+          if ! dotnet --list-sdks | grep -q "^$ACTUAL "; then
+            echo "FAIL: SDK $ACTUAL not listed"
+            exit 1
+          fi
+          echo "PASS"

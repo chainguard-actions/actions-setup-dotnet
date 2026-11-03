@@ -1,0 +1,44 @@
+name: Test NuGet source-url authentication config
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Remove any stale generated nuget.config
+        run: rm -f "$GITHUB_WORKSPACE/../nuget.config"
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0.x'
+          skip-lts-prepass: 'true'
+          source-url: https://pkgs.example.com/nuget/v3/index.json
+        env:
+          NUGET_AUTH_TOKEN: dummy-nuget-token
+      - name: Assert temporary nuget.config was written with the feed
+        run: |
+          CFG="$GITHUB_WORKSPACE/../nuget.config"
+          if [ ! -f "$CFG" ]; then
+            echo "FAIL: $CFG not found"
+            exit 1
+          fi
+          cat "$CFG"
+          if ! grep -q "https://pkgs.example.com/nuget/v3/index.json" "$CFG"; then
+            echo "FAIL: feed URL not in nuget.config"
+            exit 1
+          fi
+          if ! grep -qi "ClearTextPassword" "$CFG"; then
+            echo "FAIL: ClearTextPassword credential not in nuget.config"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert NUGET_CONFIG-independent SDK works
+        env:
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          case "$ACTUAL" in
+            8.0.*) echo "PASS" ;;
+            *) echo "FAIL: expected an 8.0.x version"; exit 1 ;;
+          esac

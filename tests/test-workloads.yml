@@ -1,0 +1,31 @@
+name: Test workload installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0.x'
+          skip-lts-prepass: 'true'
+          workloads: wasm-tools
+      - name: Assert dotnet-version output
+        env:
+          ACTUAL: ${{ steps.action.outputs.dotnet-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          case "$ACTUAL" in
+            8.0.*) echo "PASS" ;;
+            *) echo "FAIL: expected an 8.0.x version"; exit 1 ;;
+          esac
+      - name: Assert workload is installed
+        run: |
+          dotnet workload list
+          if ! dotnet workload list | grep -q "wasm-tools"; then
+            echo "FAIL: wasm-tools workload not installed"
+            exit 1
+          fi
+          echo "PASS"

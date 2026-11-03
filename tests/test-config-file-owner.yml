@@ -1,0 +1,57 @@
+name: Test config-file with GPR source and owner
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a custom NuGet.config and remove stale generated configs
+        run: |
+          rm -f "$GITHUB_WORKSPACE/../nuget.config"
+          [ -n "$RUNNER_TEMP" ] && rm -f "$RUNNER_TEMP/../nuget.config" || true
+          mkdir -p "$GITHUB_WORKSPACE/nuget-test"
+          cat > "$GITHUB_WORKSPACE/nuget-test/custom.config" <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <add key="GPR" value="https://nuget.pkg.github.com/test-owner-org/index.json" />
+            </packageSources>
+          </configuration>
+          EOF
+          cat "$GITHUB_WORKSPACE/nuget-test/custom.config"
+      - id: action
+        uses: .
+        with:
+          dotnet-version: '8.0.x'
+          skip-lts-prepass: 'true'
+          source-url: https://nuget.pkg.github.com/test-owner-org/index.json
+          owner: test-owner-org
+          config-file: nuget-test/custom.config
+        env:
+          NUGET_AUTH_TOKEN: dummy-nuget-token
+      - name: Assert generated nuget.config has credentials for the GPR source with owner
+        run: |
+          CFG=""
+          for c in "$GITHUB_WORKSPACE/../nuget.config" "${RUNNER_TEMP:-/nonexistent}/../nuget.config" "$NUGET_CONFIG"; do
+            if [ -n "$c" ] && [ -f "$c" ]; then CFG="$c"; break; fi
+          done
+          if [ -z "$CFG" ]; then
+            echo "FAIL: generated nuget.config not found"
+            exit 1
+          fi
+          echo "config: $CFG"
+          cat "$CFG"
+          if ! grep -q "GPR" "$CFG"; then
+            echo "FAIL: GPR source key from config-file not present"
+            exit 1
+          fi
+          if ! grep -q "test-owner-org" "$CFG"; then
+            echo "FAIL: owner not present in generated config"
+            exit 1
+          fi
+          if ! grep -qi "ClearTextPassword" "$CFG"; then
+            echo "FAIL: ClearTextPassword credential missing"
+            exit 1
+          fi
+          echo "PASS"
