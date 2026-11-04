@@ -4,8 +4,13 @@
   "version": "v6.1.0",
   "commit_sha": "0f4a354dd5547a28c70b7853dbd95d5b67886e73",
   "url": "https://github.com/actions/setup-dotnet",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/actions/setup-dotnet/v6.1.0/sha256-6e0cfddbba2f9704467935dd1069aadd4d08ebf5682cd1a456e43a4069ed853c.tar.gz",
+    "sha256": "6e0cfddbba2f9704467935dd1069aadd4d08ebf5682cd1a456e43a4069ed853c",
+    "size_bytes": 1577660
+  }
 }
